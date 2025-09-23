@@ -16,4 +16,8 @@ class CSVReader:
              with open(self.file_path, 'r', encoding = 'utf-8') as f:
                  reader = csv.reader(f)
                  self._data = list(reader)
-                return self._data 
+        return self._data 
+    
+    @property
+    def header(self):
+        self._data 
