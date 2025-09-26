@@ -52,7 +52,15 @@ class Memory:
         # TODO: 여기에 초기화 코드를 작성하세요
         # self.messages = ?
         # self.max_size = ?
-        pass
+        self.messages : List[Dict[str, Any]] = [] 
+        self.max_size = max_size
+        self._log(f"Memory initialized with max_size {max_size}")
+
+    def _log(self, message:str) -> None:
+        
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[{timestamp}] Memory: {message}")
+
 
     @property
     def current_size(self) -> int:
@@ -72,12 +80,28 @@ class Memory:
         # TODO: 최대 크기 확인 후 필요시 가장 오래된 메시지 삭제
         # TODO: 새 메시지 추가
         # TODO: 로그 출력
-        pass
+
+        message = {
+         "role" : role,
+         "content" : content,
+         "timestamp" : datetime.now().isoformat(),
+         "id": len(self.messages)
+         }
+        
+        if len(messages) > self.max_size:
+            removed_message = self.messages.pop(0)
+            self._log(f"Max size exceeded. Removed oldest message: {removed_message}")
+
+        self.messages.append(message)
+        self._log(f"Message added = [{role}]: {content[:50]}")   
+
 
     def get_messages(self) -> List[Dict[str, Any]]:
         """모든 메시지를 반환"""
         # TODO: self.messages 반환
-        pass
+
+        return self.messages.copy()
+        
 
     def search(self, keyword: str) -> List[Dict[str, Any]]:
         """
@@ -91,7 +115,18 @@ class Memory:
         """
         # TODO: 리스트 컴프리헨션을 사용해서 keyword가 content에 포함된 메시지들 찾기
         # 힌트: keyword.lower() in message['content'].lower()
-        pass
+
+        keyword_lower = keyword.lower()
+        results = [
+            message for message in self.messages
+            if keyword_lower in message['content'].lower()
+        ]
+        
+        self._log(f"Search for {keyword} returned {len(results)}")
+        return results
+
+
+        
 
     def delete_message(self, index: int) -> None:
         """
@@ -103,35 +138,67 @@ class Memory:
         # TODO: 인덱스가 유효한지 확인
         # TODO: 해당 인덱스의 메시지 삭제
         # TODO: 로그 출력
-        pass
+        try:
+            if -len(self.messages) <= index < len(self.messages):
+                actual_index = index if index >= 0 else len(self.messages) + index
+                deleted_message = self.messages.pop(actual_index)
+               
+
+                self._log(f"Message Deleted index : {actual_index} , Deleted message {deleted_message}")
+                return True
+        
+        except Exception as e:
+
+            self._log(f"Delete failed Invalid index: {actual_index} ")
+            return False 
 
     def clear(self) -> None:
         """모든 메시지 삭제"""
         # TODO: messages 리스트 초기화
         # TODO: 로그 출력
-        pass
+        message_count = len(self.messages)
+        self.messages.clear()
+        self._log(f"All messages cleared {message_count} ")
 
     # 매직 메서드들
     def __len__(self) -> int:
         """len() 함수가 호출될 때 실행"""
         # TODO: 현재 메시지 개수 반환
-        pass
+        message_count =len(self.messages)
+        return message_count
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
         """memory[index] 형태로 접근할 때 실행"""
         # TODO: messages[index] 반환
-        pass
+
+        return self.messages[index]
+        
+
 
     def __setitem__(self, index: int, value: Dict[str, Any]) -> None:
         """memory[index] = value 형태로 할당할 때 실행"""
         # TODO: messages[index] = value 설정
-        pass
+        if not isinstance(value, dict):
+            raise TypeError("message must be dictoinory")
+    
+        if 'role' not in value or 'content' not in value:
+            raise ValueError("Message must have 'role' and 'content' key")
+        
+        if 'timestamp' not in value :
+            value['timestamp'] = datetime.now().isoformat
+
+        old_content = self.messages[index]['content']
+        self.messages[index] = value
+        self._log(f"{index} message ")
+
 
     def __str__(self) -> str:
         """str() 함수나 print()가 호출될 때 실행"""
         # TODO: Memory 상태 정보를 문자열로 반환
         # 예: "Memory(2/5 messages)"
-        pass
+
+        return f"Memory(size={len(self.messages)}/{self.max_size} , messages = {len(self.messages)})"
+        
 
 # 테스트 코드 - 완성한 후에 실행해보세요
 if __name__ == "__main__":
