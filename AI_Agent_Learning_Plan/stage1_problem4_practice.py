@@ -46,21 +46,36 @@ def timing_decorator(func: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         # TODO: 실행 시작 로그 출력
         # print(f"[실행 시작] {func.__name__}")
+        
+        print(f"Starting '{func.__name__}' execution")
 
         # TODO: 시작 시간 기록 (time.perf_counter() 사용)
+        start_time = time.perf_counter()
 
+        try:
         # TODO: 원본 함수 실행
+            result = func(*args, **kwargs)
+
 
         # TODO: 종료 시간 기록
+            end_time = time.perf_counter()
+
 
         # TODO: 실행 시간 계산 및 로그 출력
-        # print(f"[실행 완료] {func.__name__} - 실행시간: {실행시간:.4f}초")
 
+            execution_time = end_time - start_time
+        # print(f"[실행 완료] {func.__name__} - 실행시간: {실행시간:.4f}초")
+            print(f"'{func.__name__}' completed in {execution_time: .4f} seconds ")
         # TODO: 함수 결과 반환
-        pass
+            return result 
+        
+        except Exception as e:
+            end_time - time.perf_counter()
+            execution_time = end_time - start_time
+            print(f"{func.__name__} failed after {execution_time: .4f} seconds:{str(e)}")
 
     # TODO: wrapper 함수 반환
-    pass
+    return wrapper
 
 def advanced_timing_decorator(threshold: float = 1.0, show_args: bool = True, show_result: bool = False):
     """
